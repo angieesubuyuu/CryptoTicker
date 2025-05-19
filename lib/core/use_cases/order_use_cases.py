@@ -10,7 +10,7 @@ class OrderUseCases:
                     quantity: float, price: float) -> Order:
         """Create a new order with validation"""
         if quantity <= 0 or price <= 0:
-            raise ValueError("Quantity and price must be greater than 0")
+            raise ValueError("Cantidad y precio deben ser mayores a 0")
 
         order = Order(
             name=name,
@@ -34,12 +34,12 @@ class OrderUseCases:
 
         if quantity is not None:
             if quantity <= 0:
-                raise ValueError("Quantity must be greater than 0")
+                raise ValueError("Cantidad debe ser mayor a 0")
             order.quantity = quantity
 
         if price is not None:
             if price <= 0:
-                raise ValueError("Price must be greater than 0")
+                raise ValueError("Precio debe ser mayor a 0")
             order.price = price
 
         order.total_amount = order.calculate_total()

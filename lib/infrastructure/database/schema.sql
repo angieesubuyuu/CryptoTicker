@@ -9,6 +9,4 @@ CREATE TABLE IF NOT EXISTS orders (
     price DECIMAL(20,2) NOT NULL,
     total_amount DECIMAL(20,2) NOT NULL,
     created_at DATETIME NOT NULL,
-    INDEX idx_name (name),
-    INDEX idx_created_at (created_at)
 ); 

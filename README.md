@@ -42,3 +42,25 @@ mysql>
 ```sql
 DELETE from orders;
 ```
+
+
+# Como funciona el proyecto
+
+lib/
+// Carpeta principal
+- core/
+    // En entidades se definen las clases del sistema
+    - entities/
+    // En use_cases se definen las operaciones del sistema
+    - use_cases/
+    // En interfaces se definen las interfaces del sistema
+    - interfaces/
+// En infrastructure se definen las implementaciones de las interfaces
+- infrastructure/
+    // En repositories se definen las implementaciones de las interfaces
+    - repositories/
+    // En services se definen las implementaciones de las interfaces
+    - services/
+// En presentation se definen las interfaces de usuario
+- presentation/
+    - order_ui.py
