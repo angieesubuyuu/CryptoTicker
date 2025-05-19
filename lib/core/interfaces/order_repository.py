@@ -26,4 +26,9 @@ class OrderRepository(ABC):
     @abstractmethod
     def delete_by_name_and_crypto(self, name: str, crypto_symbol: str, order_type: OrderType) -> bool:
         """Delete an order by name, crypto_symbol, and order_type"""
+        pass
+
+    @abstractmethod
+    def get_all(self) -> List[Order]:
+        """Get all orders in the system"""
         pass 

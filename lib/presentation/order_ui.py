@@ -24,7 +24,7 @@ class OrderUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("CRYPTO UMG")
-        self.root.geometry("900x600")
+        self.root.geometry("1400x800")
         self.root.configure(bg=SECONDARY_COLOR)
         self.root.resizable(False, False)
 
@@ -52,7 +52,7 @@ class OrderUI:
 
         # Left: Order Form
         form_frame = ttk.Labelframe(content, text="Crear Orden", style="Section.TLabelframe", padding=20)
-        form_frame.place(x=0, y=0, width=350, height=400)
+        form_frame.place(x=0, y=0, width=400, height=500)
 
         ttk.Label(form_frame, text="Nombre:").grid(row=0, column=0, sticky="w", pady=8, padx=5)
         self.name_entry = ttk.Entry(form_frame, font=LABEL_FONT)
@@ -91,13 +91,14 @@ class OrderUI:
 
         # Right: Orders Table
         table_frame = ttk.Labelframe(content, text="Ordenes", style="Section.TLabelframe", padding=10)
-        table_frame.place(x=370, y=0, width=490, height=520)
+        table_frame.place(x=420, y=0, width=950, height=700)
 
         columns = ("Nombre", "Crypto", "Tipo", "Cantidad", "Precio", "Total", "Fecha")
         self.orders_tree = ttk.Treeview(table_frame, columns=columns, show="headings", style="Treeview")
-        for col in columns:
+        column_widths = [120, 100, 80, 120, 120, 120, 180]
+        for col, width in zip(columns, column_widths):
             self.orders_tree.heading(col, text=col)
-            self.orders_tree.column(col, width=80 if col!="Created At" else 130, anchor="center")
+            self.orders_tree.column(col, width=width, anchor="center")
         self.orders_tree.pack(fill="both", expand=True, pady=5, padx=5)
 
         scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.orders_tree.yview)
@@ -112,6 +113,11 @@ class OrderUI:
         self.db.connect()
         self.order_repository = MySQLOrderRepository(self.db)
         self.order_use_cases = OrderUseCases(self.order_repository)
+
+        # Bind event to refresh table when name changes
+        self.name_entry.bind("<KeyRelease>", self.refresh_orders)
+        # Show table on startup
+        self.root.after(100, self.refresh_orders)
 
     def update_total_price(self, event=None):
         try:
@@ -132,10 +138,7 @@ class OrderUI:
             if crypto_obj:
                 total = quantity * crypto_obj.price
                 self.total_price_var.set(f"${total:.2f}")
-                if total > balance and balance > 0:
-                    self.create_btn.state(["disabled"])
-                else:
-                    self.create_btn.state(["!disabled"])
+                self.create_btn.state(["!disabled"])
             else:
                 self.total_price_var.set("")
                 self.create_btn.state(["disabled"])
@@ -163,7 +166,7 @@ class OrderUI:
             if available_balance < 0:
                 raise ValueError("El saldo no puede ser negativo.")
             if total_price > available_balance:
-                raise ValueError("El total excede el saldo disponible")
+                raise ValueError("El saldo disponible es insuficiente")
             order = self.order_use_cases.create_order(
                 name=name,
                 crypto_symbol=crypto_symbol,
@@ -179,14 +182,16 @@ class OrderUI:
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {str(e)}")
 
-    def refresh_orders(self):
+    def refresh_orders(self, event=None):
         for item in self.orders_tree.get_children():
             self.orders_tree.delete(item)
         try:
             name = self.name_entry.get().strip()
             if not name:
-                raise ValueError("Ingrese un nombre para ver las ordenes")
-            orders = self.order_use_cases.get_orders_by_name(name)
+                # Show all orders if name is empty
+                orders = self.order_use_cases.get_all_orders()
+            else:
+                orders = self.order_use_cases.get_orders_by_name(name)
             for order in orders:
                 self.orders_tree.insert("", "end", values=(
                     order.name,
@@ -198,7 +203,7 @@ class OrderUI:
                     order.created_at.strftime("%Y-%m-%d %H:%M:%S")
                 ))
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            pass
 
     def clear_form(self):
         self.name_entry.delete(0, tk.END)

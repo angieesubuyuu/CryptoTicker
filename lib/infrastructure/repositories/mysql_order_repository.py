@@ -51,6 +51,11 @@ class MySQLOrderRepository(OrderRepository):
         query = "DELETE FROM orders WHERE name = %s AND crypto_symbol = %s AND order_type = %s"
         return self.db.execute_update(query, (name, crypto_symbol, order_type.value))
 
+    def get_all(self) -> List[Order]:
+        query = "SELECT * FROM orders ORDER BY created_at DESC"
+        results = self.db.execute_query(query)
+        return [self._map_to_order(row) for row in results]
+
     def _map_to_order(self, row: tuple) -> Order:
         """Map database row to Order entity"""
         return Order(

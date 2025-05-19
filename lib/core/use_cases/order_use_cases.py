@@ -47,4 +47,8 @@ class OrderUseCases:
 
     def delete_order(self, name: str, crypto_symbol: str, order_type: OrderType) -> bool:
         """Delete an order by name and crypto_symbol/order_type (for demo, as no id)"""
-        return self.order_repository.delete_by_name_and_crypto(name, crypto_symbol, order_type) 
+        return self.order_repository.delete_by_name_and_crypto(name, crypto_symbol, order_type)
+
+    def get_all_orders(self) -> List[Order]:
+        """Get all orders in the system"""
+        return self.order_repository.get_all() 
